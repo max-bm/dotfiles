@@ -9,4 +9,4 @@ chmod u+x nvim.appimage
 sudo mv squashfs-root /
 sudo ln -s /squashfs-root/AppRun /usr/bin/nvim
 
-sudo chown -R $1:$1 .local
+sudo chown -R $1:$1 ~/.local
