@@ -99,3 +99,30 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+
+# DevContainer function
+devcontainer_cli() {
+    # Default to "vscode" if there's no explicit user defined
+    DEVCONTAINER_USER=$(cat .devcontainer/devcontainer.json | grep -v "^\/\|^\#" | jq -r '. | .remoteUser // "vscode"')
+    DEVCONTAINER_USER_HOME=/home/${DEVCONTAINER_USER}
+
+    devcontainer up \
+        --build-no-cache \
+        --mount "type=bind,source=${HOME}/.config,target=${DEVCONTAINER_USER_HOME}/.config" \
+        --mount "type=bind,source=${HOME}/.gitconfig,target=${DEVCONTAINER_USER_HOME}/.gitconfig" \
+        --mount "type=bind,source=${HOME}/.zshrc,target=${DEVCONTAINER_USER_HOME}/.zshrc" \
+        --mount "type=bind,source=${HOME}/.local/share/nvim/site/pack/packer/start,target=${DEVCONTAINER_USER_HOME}/.local/share/nvim/site/pack/packer/start" \
+        --dotfiles-repository "https://github.com/max-bm/dotfiles" \
+        --workspace-folder .
+
+    devcontainer exec \
+        --remote-env "ZSH=${DEVCONTAINER_USER_HOME}/.oh-my-zsh" \
+        --remote-env "EDITOR=nvim" \
+        --workspace-folder . \
+        /bin/zsh ${DEVCONTAINER_USER_HOME}/dotfiles/devcontainer_setup.sh ${DEVCONTAINER_USER}
+
+    devcontainer exec \
+        --workspace-folder . \
+        /bin/zsh
+}
+
